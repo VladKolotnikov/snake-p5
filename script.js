@@ -1,13 +1,10 @@
-//make a snake that we can control with keyboard
-
-//random food apear on screen
-
 //snake eat food and get bigger
 
 //if snake touches wall it dies
 
 //if snake touches itself it dies
-let snake = [];
+let snake;
+let tails = [];
 let fruit;
 let up = false;
 let down = false;
@@ -17,20 +14,24 @@ let score = 0;
 
 function setup() {
   createCanvas(1000, 700);
-  let body = new Snake(360, 360);
-  snake.push(body);
+  snake = new Snake(500, 360);
   fruit = new Food();
 }
 
 function draw() {
   background("black");
-  snake.forEach(snake => {
-    snake.show();
-    if (frameCount % 5 == 0) {
-      snake.eat(fruit.x, fruit.y);
-      snake.move();
-    }
+
+  tails.forEach(tail => {
+    tail.show();
   });
+
+  snake.show();
+  if (frameCount % 5 == 0) {
+    snake.eat(fruit.x, fruit.y);
+    snake.move();
+    snake.dies();
+  }
+
   fruit.show();
 
   textSize(20);
@@ -73,6 +74,14 @@ function Snake(x, y) {
     fill("blue");
     rect(this.x, this.y, this.w, this.w);
   };
+
+  this.dies = function() {
+    if (this.y > 700 || this.x > 1000 || this.y < 0 || this.x < 0) {
+      fill("red");
+      text("Game Over Your Score Was " + score, 500, 350);
+      noLoop();
+    }
+  };
   this.move = function() {
     if (up) {
       this.y = this.y - 20;
@@ -90,15 +99,28 @@ function Snake(x, y) {
   };
   this.eat = function(x, y) {
     if (this.x == x && this.y == y) {
+      let body = new Tail(this.x + 20, this.y);
+      tails.push(body);
       fruit = new Food();
       score++;
-      this.grow();
+      // this.grow();
+    }
+
+    function Tail(x, y) {
+      this.x = x;
+      this.y = y;
+      this.w = 20;
+
+      this.show = function() {
+        fill("blue");
+        rect(this.x, this.y, this.w, this.w);
+      };
     }
   };
-  this.grow = function() {
-    let body = new Snake(this.x - 20, this.y);
-    snake.push(body);
-  };
+  // this.grow = function() {
+  //   let body = new Snake(this.x - 20, this.y);
+  //   snake.push(body);
+  // };
 }
 function Food() {
   this.x = Math.floor(random(0, 49)) * 20;
